@@ -12,7 +12,6 @@ export default function BlogForm() {
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState("");
   const [urduSummary, setUrduSummary] = useState("");
-  const [urduFull, setUrduFull] = useState(""); // 🆕 Add full urdu state
   const [error, setError] = useState("");
 
   // ⏳ Prevent render until client is ready
@@ -26,7 +25,6 @@ export default function BlogForm() {
     setError("");
     setSummary("");
     setUrduSummary("");
-    setUrduFull("");
 
     try {
       const res = await fetch("/api/summarise", {
@@ -43,7 +41,7 @@ export default function BlogForm() {
 
       setSummary(data.summary);
       setUrduSummary(data.urdu);
-      setUrduFull(data.urduFull); // 🆕 set full urdu translation
+ 
 
       // Save summary and full text
       await fetch("/api/saveSummary", {
