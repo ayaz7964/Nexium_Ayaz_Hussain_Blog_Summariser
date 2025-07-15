@@ -57,6 +57,7 @@ export default function BlogForm() {
       });
     } catch (err: any) {
       setError("Failed to process blog. Please check the URL.");
+      console.log(err);
     }
 
     setLoading(false);
