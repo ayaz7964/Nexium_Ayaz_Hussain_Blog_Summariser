@@ -28,14 +28,11 @@
 
 
 
-
-
 import { NextRequest, NextResponse } from "next/server";
 import { MongoClient } from "mongodb";
 
 const mongoUri = process.env.MONGODB_URI!;
 
-// Cache client across hot reloads in development and re-use in production
 let cachedClient: MongoClient | null = null;
 
 async function connectToMongo() {
@@ -63,8 +60,12 @@ export async function POST(req: NextRequest) {
     await collection.insertOne({ url, fullText });
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    console.error("MongoDB Insert Error:", error.message);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("MongoDB Insert Error:", error.message);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    console.error("Unknown error inserting into MongoDB");
+    return NextResponse.json({ error: "Unknown error" }, { status: 500 });
   }
 }
