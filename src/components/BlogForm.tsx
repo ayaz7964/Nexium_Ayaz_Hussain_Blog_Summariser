@@ -19,49 +19,98 @@ export default function BlogForm() {
     setMounted(true);
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    setSummary("");
-    setUrduSummary("");
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   setError("");
+  //   setSummary("");
+  //   setUrduSummary("");
 
-    try {
-      const res = await fetch("/api/summarise", {
-        method: "POST",
-        body: JSON.stringify({ url }),
-        headers: { "Content-Type": "application/json" },
-      });
+  //   try {
+  //     const res = await fetch("/api/summarise", {
+  //       method: "POST",
+  //       body: JSON.stringify({ url }),
+  //       headers: { "Content-Type": "application/json" },
+  //     });
 
-      const data = await res.json();
+  //     const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to summarise.");
-      }
+  //     if (!res.ok) {
+  //       throw new Error(data.error || "Failed to summarise.");
+  //     }
 
-      setSummary(data.summary);
-      setUrduSummary(data.urdu);
+  //     setSummary(data.summary);
+  //     setUrduSummary(data.urdu);
  
 
-      // Save summary and full text
-      await fetch("/api/saveSummary", {
-        method: "POST",
-        body: JSON.stringify({ url, summary: data.summary }),
-        headers: { "Content-Type": "application/json" },
-      });
+  //     // Save summary and full text
+  //     await fetch("/api/saveSummary", {
+  //       method: "POST",
+  //       body: JSON.stringify({ url, summary: data.summary }),
+  //       headers: { "Content-Type": "application/json" },
+  //     });
 
-      await fetch("/api/saveFullText", {
-        method: "POST",
-        body: JSON.stringify({ url, fullText: data.fullText }),
-        headers: { "Content-Type": "application/json" },
-      });
-    } catch (err: any) {
-      setError("Failed to process blog. Please check the URL.");
-      console.log(err);
+  //     await fetch("/api/saveFullText", {
+  //       method: "POST",
+  //       body: JSON.stringify({ url, fullText: data.fullText }),
+  //       headers: { "Content-Type": "application/json" },
+  //     });
+  //   } catch (err: any) {
+  //     setError("Failed to process blog. Please check the URL.");
+  //     console.log(err);
+  //   }
+
+  //   setLoading(false);
+  // };
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  setError("");
+  setSummary("");
+  setUrduSummary("");
+
+  try {
+    const res = await fetch("/api/summarise", {
+      method: "POST",
+      body: JSON.stringify({ url }),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Failed to summarise.");
     }
 
-    setLoading(false);
-  };
+    setSummary(data.summary);
+    setUrduSummary(data.urdu);
+
+    await fetch("/api/saveSummary", {
+      method: "POST",
+      body: JSON.stringify({ url, summary: data.summary }),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    await fetch("/api/saveFullText", {
+      method: "POST",
+      body: JSON.stringify({ url, fullText: data.fullText }),
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      setError(err.message);
+      console.error("Error:", err.message);
+    } else {
+      setError("An unknown error occurred.");
+      console.error("Unknown error:", err);
+    }
+  }
+
+  setLoading(false);
+};
+
 
   // 🚫 Don't render anything until mounted (avoids hydration mismatch)
   if (!mounted) return null;
